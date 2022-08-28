@@ -1,0 +1,59 @@
+# 494.目标和（01背包变形题）
+```cpp
+class Solution {
+public:
+    int findTargetSumWays(vector<int>& nums, int target) {
+        int sums=0;
+        //由数学知识可得，left-right=target，left+right=sums，left = (sums+target)/2
+        for(int i = 0;i<nums.size();i++) sums+=nums[i];
+        if(abs(target)>sums || target<-sums || (sums+target)%2!=0)
+        {
+            return 0;
+        }
+        int bagsize = (sums+target)/2;
+        vector<int> dp(bagsize+1,0);
+        //如果dp[0]不初始化为1，则一维dp结果全部是0
+        dp[0] = 1;
+        //注意1维dp的遍历方式，先遍历物品，此题中是nums，再遍历背包重量，此题中就是left。
+        for(int i = 0;i<nums.size();i++)
+        {
+            for(int j = bagsize;j>=nums[i];j--)
+            {
+                //组合类问题的递推公式
+                dp[j]+=dp[j-nums[i]];
+            }
+        }
+        return dp[bagsize];
+    }
+};
+```
+
+# 474.一零和（01背包变形题）
+**此题可看作01背包的变形题，只不过strs中每个字符串是物品，bagsize需要满足两个尺寸大小，一个m（0的个数），一个n（1的个数）**
+**递推数组：dp[i][j] = max(dp[i][j],dp[i-zeronum][j-onenum]+1) 和01背包的一维递推数组：dp[j] = max(dp[j],dp[j-weight[i]]+value[i])非常类似**
+```cpp
+class Solution {
+public:
+    int findMaxForm(vector<string>& strs, int m, int n) {
+        vector<vector<int> > dp(m+1,vector<int>(n+1,0));
+        dp[0][0] = 0;
+        for(string str:strs)
+        {
+            int zeronum=0,onenum=0;
+            for(char c:str)
+            {
+                if (c =='0') zeronum++;
+                else onenum++;
+            }
+                for(int i=m;i>=zeronum;i--)
+                {
+                    for(int j=n;j>=onenum;j--)
+                    {
+                        dp[i][j] = max(dp[i][j],dp[i-zeronum][j-onenum]+1);
+                    }
+                }
+        }
+        return dp[m][n];
+    }
+};
+```
